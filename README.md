@@ -2,11 +2,14 @@
 
 ## 1. Project Overview
 
-**Short Description**
+**Short Description:**
+
 A Python-based simulator that solves and visualizes the **chaotic motion of a double pendulum**, demonstrating extreme sensitivity to initial conditions.
 
-**Motivation**
+**Motivation:**
+
 The double pendulum is a simple mechanical system that can show chaos: two pendulum with almost identical starting angles quickly diverge into very different trajectories.
+
 This project uses **numerical ODE methods** to solve the equations of motion for a double pendulum and **visualization** to explore chaos in classical mechanics.
 
 ## 2. Features
@@ -31,37 +34,49 @@ Plot angles vs time for both pendulum arms.
     - (Optional) Estimate a simple **divergence rate** to illustrate Lyapunov-like behavior
 
 ## 3. Project Structure
-project_root/
+TERM PROJECT/
+
 ├── main.py              # CLI menu and user interaction
+
 ├── pendulum_model.py    # Equations of motion + RK4 integrator + simulation
+
 ├── chaos_tools.py       # Two-trajectory simulation + separation analysis
+
 ├── plotter.py           # Plotting and animation routines
+
 ├── README.md            # Describe Function, Usage, Design, Development process, Sources, Updates
+
 └── dev_log.md           # Development log and notes (including AI usage)
 
 ## 4. Physics & Mathematical Background
 **4.1 System Description**
-The double pendulum constis of :
+
+The double pendulum consist of:
 - First pendulum: mass m1 at the end of a massless rod of length l1
 - Second pendulum: mass m2 attached to the end of the first mass by a massless rod of length l2
-- Angle θ1​(t) and θ2​(t) are mesured from the vertical
+- Angle θ1​(t) and θ2​(t) are measured from the vertical
 - The motion is driven by gravity g, and constrained by the rods
 The state vector is :
 
-y(t) = [θ1​, ω1​, θ2​, ω2​]
+        y(t) = [θ1​, ω1​, θ2​, ω2​]
 
 where wi = dθi/dt is angular velocity.
 
 **4.2 Equations of Motion (Conceptual)**
+
 The equations of motion come from Lagrangian mechanics (kinetic and potential energy of the two masses).
+
 The form a pair of nonlinear, coupled second-order ODEs in θ1 and θ2, often written in the form:
+
 d2θ1/dt2 = f(θ1, θ2, ω1, ω2)
 d2θ2/dt2 = g(θ1, θ2, ω1, ω2)
 
 In the code, these are rewritten as a first-order system:
+
 d/dt [θ1, ω1, θ2, ω2] = [ω1, f(θ1, θ2, ω1, ω2), ω2, g(θ1, θ2, ω1, ω2)]
 
 **4.3 Numerical Methods: Runge-Kutta 4th order (RK4)**
+
 The program uses a fixed time-step RK4 integrator to solve the equations of motion.
 Given current state yn at time tn:
 1. Compute k1 = f(tn, yn)
@@ -70,23 +85,24 @@ Given current state yn at time tn:
 4. Compute k4 = f(tn + dt, yn + dt * k3)
 Update:
 yn+1 = yn + dt/6 * (k1 + 2k2 + 2k3 + k4)
+
 This method provides good accurancy for sufficient small time steps dt.
 
 
 ## 5. Ways to Run
 **5.1 Requirements**
 - Python 3.8 or higher
-- Recommended packeages: matplotlib, numpy
+- Recommended packages: matplotlib, numpy
 
 **5.2 Setup and Execution**
 - clone or download the project
 git clone https://github.com/eugtan98/Chaotic-Double-Pendulum-Simulator.git
 
 - install dependencies
-pip install matplotlib numpy
+    - pip install matplotlib numpy
 
 - run the program
-python main.py
+    - python main.py
 
 
 

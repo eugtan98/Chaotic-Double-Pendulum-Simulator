@@ -102,7 +102,7 @@ def run_phase_space_plot():
     #Get parameters, initial conditions, time settings
     print("=== Phase-Space Plot (theta vs omega) ===")
     params = get_parameters()
-    initial_state = get_initial_state
+    initial_state = get_initial_state()
     t_max, dt = get_time_settings()
 
     #Simulate once

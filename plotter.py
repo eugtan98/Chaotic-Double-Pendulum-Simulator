@@ -172,6 +172,7 @@ def plot_angles_vs_time(t_array: List[float],
     ax.set_title("Double Pendulum Angles vs Time")
     ax.legend()
     ax.grid(True)
+    ax.grid(True)
     plt.show()
 
 def plot_phase_space(theta_array: List[float], 
@@ -186,6 +187,7 @@ def plot_phase_space(theta_array: List[float],
     ax.set_ylabel("Angular Velocity (rad/s)")
     ax.set_title("Phase-Space Plot")
     ax.grid(True)
+    ax.grid(True)
     plt.show()
 
 def plot_separation_vs_time(t_array: List[float],
@@ -199,5 +201,6 @@ def plot_separation_vs_time(t_array: List[float],
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Separation in Angle Space")
     ax.set_title("Separation vs Time")
+    ax.grid(True)
     ax.grid(True)
     plt.show()

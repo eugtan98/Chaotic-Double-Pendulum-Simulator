@@ -19,7 +19,7 @@ def derivatives(state, params):
 
     #Denominators from standard double pendulum equation
     den1 = (m1+m2)*l1 - m2*l1*(cos_delta**2)
-    den2 = (l1/l1)*den1
+    den2 = (l2/l1)*den1
 
     #Angular accelerations (aplha1, alpha2)
     #alpha1 = domega1_dt
@@ -29,8 +29,8 @@ def derivatives(state, params):
             - (m1 + m2) * g * math.sin(theta1))
     domega1_dt = num1 / den1
 
-    #aplha2 = domega2_dt
-    num2 = (m2 * l1 * (omega2**2) * sin_delta * cos_delta
+    #alpha2 = domega2_dt
+    num2 = (- m2 * l2 * (omega2**2) * sin_delta * cos_delta
             + (m1 + m2) * (g *math.sin(theta1) * cos_delta 
             - l1 * (omega1**2) * sin_delta - g * math.sin(theta2)))
     domega2_dt = num2 / den2

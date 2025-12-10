@@ -18,26 +18,26 @@ def get_parameters():
     if choice_para == 'd':
         m1, m2, l1, l2 ,g = defaults
     else:
-        m1 = input("Enter m1:")
-        m2 = input("Enter m2:")
-        l1 = input("Enter l1:")
-        l2 = input("Enter l2")
-        g = input("Enter g")
+        m1 = float(input("Enter m1:"))
+        m2 = float(input("Enter m2:"))
+        l1 = float(input("Enter l1:"))
+        l2 = float(input("Enter l2"))
+        g = float(input("Enter g"))
     para = {"m1": m1, "m2":m2, "l1": l1, "l2":l2, "g":g}
     return para
 
 def get_initial_state():
     print("Enter initial angles (in radians) and angular velocities.")
-    theta1_0 = input("Enter first initial angle:")
-    omega1_0 = input("Enter first angular velocity: ")
-    theta2_0 = input("Enter second initial angle:")
-    omega2_0 = input("Enter second angular velocity: ")
+    theta1_0 = float(input("Enter first initial angle:"))
+    omega1_0 = float(input("Enter first angular velocity: "))
+    theta2_0 = float(input("Enter second initial angle:"))
+    omega2_0 = float(input("Enter second angular velocity: "))
     initial_state = [theta1_0, omega1_0, theta2_0, omega2_0]
     return initial_state
 
 def get_time_settings():
-    t_max = input("Enter total simulation time:")
-    dt = input("Enter time step:")
+    t_max = float(input("Enter total simulation time:"))
+    dt = float(input("Enter time step:"))
     return t_max, dt
 
 def run_single_simulation():
@@ -77,7 +77,7 @@ def run_chaos_demo():
     t_max, dt = get_time_settings()
 
     #Ask for small perturbation
-    delta_theta1 = input("Enter small change in theta1 for the second trajectory (e.g. 0.001 rad):")
+    delta_theta1 = float(input("Enter small change in theta1 for the second trajectory (e.g. 0.001 rad):"))
 
     #Run two simulations                                                                                 
     (t_array, theta1_a, omega1_a, theta2_a, omega2_a, 

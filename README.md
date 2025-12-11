@@ -47,14 +47,14 @@ The project follows a **Model-View-Controller (MVC)** pattern to separate physic
     * **SmartSlider Class:** A custom UI widget combining Matplotlib sliders with buttons.
     * **Layout Logic:** Handles the "Dashboard" arrangement (Plots, Graphs, and Controls).
 
-## 4. References (5%)
+## 4. References
 * **Physics Equations:** Derived from standard Classical Mechanics textbooks (Lagrangian dynamics of a double pendulum).
 * **AI Assistance (ChatGPT):**
     * Used for generating the initial skeleton code for the CLI version.
     * Consulted for debugging the `ZeroDivisionError` in the initial `main.py`.
     * Assisted in writing the `matplotlib.widgets` code for the GUI transition and designing the "Smart Slider" class.
 
-## 5. Modifications & Enhancements (10%)
+## 5. Modifications & Enhancements
 **From CLI to GUI Dashboard:**
 The initial program was a simple script that ran one simulation and showed one plot. I have significantly enhanced this to be a scientific exploration tool.
 

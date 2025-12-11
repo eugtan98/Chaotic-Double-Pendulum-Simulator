@@ -1,118 +1,70 @@
-# Chaotic Double Pendulum Simulator
+# Chaotic Double Pendulum Simulator & Dashboard
 
-## 1. Project Overview
+## 1. Principles and Functions
+**Scientific Background:**
+The double pendulum is a classic example of a physical system that exhibits **deterministic chaos**. While governed by known laws of physics (Newtonian/Lagrangian mechanics), its motion is highly sensitive to initial conditions.
 
-**Short Description:**
+**Physics & Mathematics:**
+* **Lagrangian Mechanics:** The equations of motion are derived using the Lagrangian $L = T - V$, where $T$ is kinetic energy and $V$ is potential energy.
+* **System State:** The system is described by four variables:
+    $$y(t) = [\theta_1, \omega_1, \theta_2, \omega_2]$$
+    Where $\theta$ is the angle and $\omega$ is the angular velocity.
+* **Numerical Integration (RK4):**
+    Because the coupled differential equations are non-linear and cannot be solved analytically, the program uses the **4th-Order Runge-Kutta (RK4)** method to numerically approximate the solution. This method estimates the slope at four points within a time step $dt$ to provide a highly accurate update:
+    $$y_{n+1} = y_n + \frac{dt}{6}(k_1 + 2k_2 + 2k_3 + k_4)$$
+    This logic is encapsulated in `pendulum_model.py`.
 
-A Python-based simulator that solves and visualizes the **chaotic motion of a double pendulum**, demonstrating extreme sensitivity to initial conditions.
+**Key Functions:**
+1.  **Real-Time Simulation:** Solves the equations of motion on-the-fly as users adjust parameters.
+2.  **Chaos Visualization:** Simulates two pendulums with a microscopic difference ($0.001$ rad) to visualize divergence.
+3.  **Phase Space Analysis:** Plots $\omega$ vs $\theta$ to analyze the system's dynamic stability (limit cycles vs. chaos).
 
-**Motivation:**
+## 2. Usage
+**Requirements:**
+* Python 3.8+
+* Libraries: `matplotlib`, `numpy`
 
-The double pendulum is a simple mechanical system that can show chaos: two pendulum with almost identical starting angles quickly diverge into very different trajectories.
+**Execution:**
+1.  Install dependencies: `pip install matplotlib numpy`
+2.  Run the main dashboard: `python gui_dashboard.py`
 
-This project uses **numerical ODE methods** to solve the equations of motion for a double pendulum and **visualization** to explore chaos in classical mechanics.
+**Interaction:**
+* **Control Panel:** Use the "Smart Sliders" on the left.
+    * **Click Arrows:** For precise increments (e.g., $\pm 0.001$ rad for angles).
+    * **Drag Slider:** For coarse adjustments.
+* **Simulation:** The plots update automatically. Use **"Replay"** to watch the animation again or **"Reset"** to restore default values.
 
-## 2. Features
-### Core Features
-- Simulate the motion of a double pendulum with configurable:
-  
-    -masses (m1, m2)
-  
-    -lengths (l1, l2)
-  
-    -gravity (g)
-  
-    -initial conditions (theta1_0, omega1_0, theta2_0, omega2_0)
-  
-    -simulation time (t_max)
-  
-    -time step (dt)
-  
-- Numerically solve the equations of motion  using a **4th order Runge-Kutta method**
-- Animate the double pendulum motion using 'matplotlib'
-Plot angles vs time for both pendulum arms.
+## 3. Program Structure
+The project follows a **Model-View-Controller (MVC)** pattern to separate physics from the interface.
 
-### Chaos & Analysis Features
-- **Chaos Demo:** 
-    - Run two simulations with a tiny difference in initial angle (e.g., theta_1 + 0.001 rad)
-    - Compute and plot the separation between the two trajectories as a function of time
-- **Phase-space plot:**
-    - Plot the phase-space graph for one pendulum arm
-    - (Optional) Estimate a simple **divergence rate** to illustrate Lyapunov-like behavior
+* **`pendulum_model.py` (The Model):**
+    * Contains the physics constants and differential equations (`derivatives` function).
+    * Implements the `rk4_step` and `simulate` functions for numerical integration.
+    * *Relation to Principles:* This file strictly handles the math described in Section 1.
 
-## 3. Project Structure
-TERM PROJECT/
+* **`main.py` (The View & Controller):**
+    * **SimulationManager Class:** Manages the state and calls the physics engine.
+    * **SmartSlider Class:** A custom UI widget combining Matplotlib sliders with buttons.
+    * **Layout Logic:** Handles the "Dashboard" arrangement (Plots, Graphs, and Controls).
 
-├── main.py              # CLI menu and user interaction
+## 4. References (5%)
+* **Physics Equations:** Derived from standard Classical Mechanics textbooks (Lagrangian dynamics of a double pendulum).
+* **AI Assistance (ChatGPT):**
+    * Used for generating the initial skeleton code for the CLI version.
+    * Consulted for debugging the `ZeroDivisionError` in the initial `main.py`.
+    * Assisted in writing the `matplotlib.widgets` code for the GUI transition and designing the "Smart Slider" class.
 
-├── pendulum_model.py    # Equations of motion + RK4 integrator + simulation
+## 5. Modifications & Enhancements (10%)
+**From CLI to GUI Dashboard:**
+The initial program was a simple script that ran one simulation and showed one plot. I have significantly enhanced this to be a scientific exploration tool.
 
-├── chaos_tools.py       # Two-trajectory simulation + separation analysis
-
-├── plotter.py           # Plotting and animation routines
-
-├── README.md            # Describe Function, Usage, Design, Development process, Sources, Updates
-
-└── dev_log.md           # Development log and notes (including AI usage)
-
-## 4. Physics & Mathematical Background
-**4.1 System Description**
-
-The double pendulum consist of:
-- First pendulum: mass m1 at the end of a massless rod of length l1
-- Second pendulum: mass m2 attached to the end of the first mass by a massless rod of length l2
-- Angle θ1​(t) and θ2​(t) are measured from the vertical
-- The motion is driven by gravity g, and constrained by the rods
-The state vector is :
-
-        y(t) = [θ1​, ω1​, θ2​, ω2​]
-
-where wi = dθi/dt is angular velocity.
-
-**4.2 Equations of Motion (Conceptual)**
-
-The equations of motion come from Lagrangian mechanics (kinetic and potential energy of the two masses).
-
-The form a pair of nonlinear, coupled second-order ODEs in θ1 and θ2, often written in the form:
-
-d2θ1/dt2 = f(θ1, θ2, ω1, ω2)
-d2θ2/dt2 = g(θ1, θ2, ω1, ω2)
-
-In the code, these are rewritten as a first-order system:
-
-d/dt [θ1, ω1, θ2, ω2] = [ω1, f(θ1, θ2, ω1, ω2), ω2, g(θ1, θ2, ω1, ω2)]
-
-**4.3 Numerical Methods: Runge-Kutta 4th order (RK4)**
-
-The program uses a fixed time-step RK4 integrator to solve the equations of motion.
-Given current state yn at time tn:
-1. Compute k1 = f(tn, yn)
-2. Compute k2 = f(tn + dt/2, yn + dt/2 * k1)
-3. Compute k3 = f(tn + dt/2, yn + dt/2 * k2)
-4. Compute k4 = f(tn + dt, yn + dt * k3)
-   
-Update:
-yn+1 = yn + dt/6 * (k1 + 2k2 + 2k3 + k4)
-
-This method provides good accurancy for sufficient small time steps dt.
-
-
-## 5. Ways to Run
-**5.1 Requirements**
-- Python 3.8 or higher
-- Recommended packages: matplotlib, numpy
-
-**5.2 Setup and Execution**
-- clone or download the project
-git clone https://github.com/eugtan98/Chaotic-Double-Pendulum-Simulator.git
-
-- install dependencies
-    - pip install matplotlib numpy
-
-- run the program
-    - python main.py
-
-
-
-
-
+**Specific Contributions:**
+1.  **Smart Sliders (Custom Class):**
+    * *Problem:* Standard sliders are hard to set to exact values (e.g., exactly 0.000 velocity).
+    * *My Contribution:* I wrote a custom `SmartSlider` class that adds `<` and `>` buttons to every slider. This allows for precise, discrete increments (e.g., steps of 0.001 for angles), which is critical for testing sensitivity to initial conditions.
+2.  **Dashboard Architecture:**
+    * *Enhancement:* Instead of popup windows, I designed a single-window dashboard containing 4 simultaneous panels: Control, Trajectory, Chaos Comparison, and Data Analysis.
+3.  **Real-Time Metrics:**
+    * *Enhancement:* Added a "Separation vs. Time" graph that calculates the Euclidean distance between the two chaotic trajectories in real-time, providing a quantitative measure of the "Butterfly Effect" that wasn't present in the original code.
+4.  **Merged Phase Space:**
+    * *Enhancement:* Combined the phase space of both pendulums into one graph for easier comparison of their dynamic states.

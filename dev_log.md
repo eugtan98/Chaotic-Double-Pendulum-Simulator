@@ -89,3 +89,64 @@ Result: PASSED. (The TypeError is gone).
 Chaos Demo logic: Verified that **run_chaos_demo** calls **chaos_tools** and **plotter.animate_two_pendulums**.
 
 Result: PASSED. (Caught the missing l1, l2 bug).
+
+# Project Evolution: From CLI to GUI Dashboard (2025/12/11)
+
+## Phase 1: The Foundation (Original State)
+* **Files:** `main.py`, `pendulum_model.py`, `chaos_tools.py`, `plotter.py`.
+* **User Experience:** The original program was a Command Line Interface (CLI). Users ran `main.py` in a terminal and manually input parameters (mass, length, etc.) one by one. The simulation had to calculate fully before a separate window appeared to show the animation.
+* **Goal:** Modernize the project into a **Real-Time Interactive Dashboard** similar to scientific simulators, allowing users to tweak parameters via sliders and see instant results.
+
+---
+
+## Phase 2: Building the Dashboard (`gui_dashboard.py`)
+I modified `main.py`. This modified file relies solely on the physics engine `pendulum_model.py`, making the old CLI tools obsolete for this specific view.
+
+### Chronology of Changes & Features
+
+1.  **Initial Interactive Prototype**
+    * **Architecture Change:** Shifted from a "Calculate All → Then Animate" model to a real-time update loop.
+    * **Feature:** Replaced text prompts with Matplotlib **Sliders** on the left side of the interface.
+    * **Result:** Users could drag sliders (e.g., Gravity) and observe immediate reactions from the pendulum.
+
+2.  **"Pre-Calculate & Replay" Engine**
+    * **Problem:** Calculating physics steps in real-time caused glitchy animation and inconsistent playback speed.
+    * **Fix:** Implemented a `SimulationManager` class. Now, whenever a slider is moved, the engine instantly re-calculates the **entire** trajectory (e.g., 10 seconds) and plays it back smoothly. This ensures mathematically perfect physics integration.
+
+3.  **Auto-Reset Logic**
+    * **Feature:** Implemented logic to automatically reset the simulation time to $t=0$ immediately upon any parameter change, preventing jarring position jumps.
+
+4.  **The "Command Center" Layout**
+    * **Feature:** Consolidated multiple visualizations into a single window.
+    * **Implementation:** Split the screen into distinct panels using absolute positioning:
+        * **Single Simulation:** The standard spatial view.
+        * **Chaos Demo:** Overlaid trajectories (Blue vs. Red) to visualize divergence.
+        * **Phase Space:** A merged graph plotting Angular Velocity vs. Angle for both pendulums.
+        * **Results:** A text panel displaying real-time metrics.
+
+5.  **Refining the Layout**
+    * **Design:** Adjusted the layout to match a specific hand-drawn sketch provided by the user.
+    * **Logic Change:** Configured the simulation to **stop** automatically at the end time (`t_max`) instead of looping indefinitely, and added a **Replay** button.
+
+6.  **Advanced Analysis Features**
+    * **Progressive Tracing:** Programmed the phase space lines to "draw" themselves historically behind the moving dot.
+    * **Separation Graph:** Added a new "Separation vs. Time" graph to quantify the "Butterfly Effect" by plotting the Euclidean distance between chaotic trajectories over time.
+
+7.  **Initial Condition Controls**
+    * **Feature:** Added four new sliders for **Theta 1/2** and **Omega 1/2**, allowing users to set specific starting angles and velocities (e.g., starting upside down).
+
+8.  **The "Smart Slider" Upgrade**
+    * **Problem:** Standard sliders made it difficult to select precise values (e.g., exactly 0.000).
+    * **Solution:** Developed a custom `SmartSlider` class.
+    * **Features:** Added **`<`** and **`>`** buttons to every slider for discrete stepping.
+    * **Precision:** Configured specific step increments ($0.001$ for angles, $0.1$ for physics parameters) for fine-tuned control.
+
+9.  **Final Polish**
+    * **UI Cleanup:** Fixed text overlapping issues, layout collisions, and Matplotlib formatting errors.
+    * **Labeling:** Added clear axis labels ("x (m)", "y (m)") and unit indicators to all plots.
+    * **Reset Button:** Added a master "Reset" button to restore all parameters to their default states.
+
+---
+
+## Final Result
+The project has transformed into a professional-grade **GUI Dashboard** (`gui_dashboard.py`) powered by the original physics engine (`pendulum_model.py`). It offers a robust, user-friendly interface for the scientific exploration of chaotic systems.

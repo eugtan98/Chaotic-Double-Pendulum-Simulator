@@ -149,4 +149,4 @@ I modified `main.py`. This modified file relies solely on the physics engine `pe
 ---
 
 ## Final Result
-The project has transformed into a professional-grade **GUI Dashboard** (`gui_dashboard.py`) powered by the original physics engine (`pendulum_model.py`). It offers a robust, user-friendly interface for the scientific exploration of chaotic systems.
+The project has transformed into a professional-grade **GUI Dashboard** (`main.py`) powered by the original physics engine (`pendulum_model.py`). It offers a robust, user-friendly interface for the scientific exploration of chaotic systems.

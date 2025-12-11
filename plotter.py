@@ -80,7 +80,7 @@ def animate_pendulum(theta1_array, theta2_array, params):
         xs = [0.0, x1, x2]
         ys = [0.0, y1, y2]
         rod_line.set_data(xs, ys)
-        return rod_line
+        return rod_line,
     
     ani = FuncAnimation(fig, update, frames=len(theta1_array), init_func=init, interval=20, blit = True)
     plt.show()
@@ -106,8 +106,8 @@ def animate_two_pendulums(theta1_a: List[float],
     theta2_b = theta2_b[:n]
 
     #Precompute position
-    (x1_a, y1_a, x2_a, y2_a) = compute_positions(theta1_a, theta2_a)
-    (x1_b, y1_b, x2_b, y2_b) = compute_positions(theta1_b, theta2_b)
+    (x1_a, y1_a, x2_a, y2_a) = compute_positions(theta1_a, theta2_a, l1, l2)
+    (x1_b, y1_b, x2_b, y2_b) = compute_positions(theta1_b, theta2_b, l1, l2)
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
 

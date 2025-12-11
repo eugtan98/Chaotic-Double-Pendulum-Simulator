@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple
 import math
 import pendulum_model   
 
-def simulate_two_trajectories(intiial_state: List[float], 
+def simulate_two_trajectories(initial_state: List[float], 
                               delta_theta1: float, 
                               t_max: float, 
                               dt: float, 
@@ -11,8 +11,8 @@ def simulate_two_trajectories(intiial_state: List[float],
                                         List[float], List[float], List[float], List[float],  # traj A: theta1, omega1, theta2, omega2
                                         List[float], List[float], List[float], List[float],  # traj B: theta1, omega1, theta2, omega2
                                         ]:
-    state_a = list(intiial_state)
-    state_b = list(intiial_state)
+    state_a = list(initial_state)
+    state_b = list(initial_state)
 
     state_b[0] += delta_theta1
 

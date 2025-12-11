@@ -49,7 +49,7 @@ def rk4_step(state, dt, params):
     state_k3 = [state[i] + 0.5 * dt *k2[i] for i in range(4)]
     k3 = derivatives(state_k3, params)
 
-    state_k4 = [state[i] + 0.5 * dt *k3[i] for i in range(4)]
+    state_k4 = [state[i] + dt *k3[i] for i in range(4)]
     k4 = derivatives(state_k4, params)
     
     new_state = []

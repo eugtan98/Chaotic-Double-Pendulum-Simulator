@@ -15,12 +15,19 @@ This project uses **numerical ODE methods** to solve the equations of motion for
 ## 2. Features
 ### Core Features
 - Simulate the motion of a double pendulum with configurable:
-    -masses \ (m1, m2\)
-    -lengths \ (l1, l2\)
-    -gravity \ (g\)
-    -initial conditions \ (theta1_0, omega1_0, theta2_0, omega2_0\)
-    -simulation time \ (t_max\)
-    -time step \ (dt\)
+  
+    -masses (m1, m2)
+  
+    -lengths (l1, l2)
+  
+    -gravity (g)
+  
+    -initial conditions (theta1_0, omega1_0, theta2_0, omega2_0)
+  
+    -simulation time (t_max)
+  
+    -time step (dt)
+  
 - Numerically solve the equations of motion  using a **4th order Runge-Kutta method**
 - Animate the double pendulum motion using 'matplotlib'
 Plot angles vs time for both pendulum arms.
@@ -83,6 +90,7 @@ Given current state yn at time tn:
 2. Compute k2 = f(tn + dt/2, yn + dt/2 * k1)
 3. Compute k3 = f(tn + dt/2, yn + dt/2 * k2)
 4. Compute k4 = f(tn + dt, yn + dt * k3)
+   
 Update:
 yn+1 = yn + dt/6 * (k1 + 2k2 + 2k3 + k4)
 

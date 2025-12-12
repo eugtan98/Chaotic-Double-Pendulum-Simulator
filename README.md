@@ -57,7 +57,7 @@ The project follows a **Model-View-Controller (MVC)** pattern to separate physic
     * **SmartSlider Class:** A custom UI widget combining Matplotlib sliders with increment buttons.
     * **Layout Logic:** Handles the 6-panel dashboard arrangement (Single Sim, Chaos Demo, Angle Plot, Energy Plot, Phase Space, Separation Plot).
 
-## 4. Development Process (5%)
+## 4. Development Process
 **Process & Challenges:**
 1.  **Initial CLI Phase:** The project started as a command-line tool (`main.py`) where users had to manually input numbers.
 2.  **Debugging Physics:**
@@ -71,10 +71,10 @@ The project follows a **Model-View-Controller (MVC)** pattern to separate physic
 
 ## 5. References
 * **Physics Equations:** Derived from standard Classical Mechanics textbooks (Lagrangian dynamics of a double pendulum).
-* **AI Assistance (ChatGPT):**
-    * Used for generating the initial skeleton code for the CLI version.
-    * Consulted for debugging the `ZeroDivisionError` in the initial `main.py`.
-    * Assisted in writing the `matplotlib.widgets` code for the GUI transition and designing the "Smart Slider" class.
+* **AI Assistance (ChatGPT、Gemini、Antigravity):**
+    * Used for generating the initial pseudocode and skeleton code for the CLI version.(GPT)
+    * Consulted for debugging the `ZeroDivisionError` in the initial `main.py`.(Antigravity)
+    * Assisted in writing the `matplotlib.widgets` code for the GUI transition and designing the "Smart Slider" class.(Gemini)
 
 ## 6. Modifications & Enhancements
 **From CLI to GUI Dashboard:**

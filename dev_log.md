@@ -99,7 +99,7 @@ Result: PASSED. (Caught the missing l1, l2 bug).
 
 ---
 
-## Phase 2: Building the Dashboard (`gui_dashboard.py`)
+## Phase 2: Building the Dashboard (`main.py`)
 I modified `main.py`. This modified file relies solely on the physics engine `pendulum_model.py`, making the old CLI tools obsolete for this specific view.
 
 ### Chronology of Changes & Features
@@ -150,3 +150,48 @@ I modified `main.py`. This modified file relies solely on the physics engine `pe
 
 ## Final Result
 The project has transformed into a professional-grade **GUI Dashboard** (`main.py`) powered by the original physics engine (`pendulum_model.py`). It offers a robust, user-friendly interface for the scientific exploration of chaotic systems.
+
+# Advanced Features & Usability Fixes (2025/12/12)
+**Focus:** Educational Tools, Scientific Metrics, and Graph Interaction
+
+## 1. Educational Control: Pause & Resume
+To assist in teaching and demonstration, I added the ability to freeze time without losing the simulation state.
+
+* **UI Change:** Added a **"Pause Resume"** button (Cyan color) next to the Reset button.
+* **Logic:**
+    * Implemented an `is_paused` flag in the `SimulationManager`.
+    * Modified the `animate` loop to skip frame updates while keeping the plot drawn when paused.
+    * **Toggle Behavior:** Clicking the button switches between "Pause" and "Resume".
+    * **Auto-Resume:** Pressing "Replay" or "Reset" automatically unpauses the system to prevent confusion.
+
+## 2. Scientific Metrics: Angle Analysis & Lyapunov Exponent
+To provide deeper insight into chaotic behavior beyond just visual divergence, I added quantitative metrics.
+
+* **New Graph (Row 2, Left):** **Angles vs. Time**.
+    * Plots $\theta_1$ (Green) and $\theta_2$ (Purple) over time.
+    * *Purpose:* Allows users to visually check for periodicity vs. chaotic non-repetition.
+* **Lyapunov Estimation:**
+    * Implemented a real-time estimation of the **Lyapunov Exponent** ($\lambda$).
+    * *Formula:* $\lambda \approx \frac{1}{t} \ln(\frac{d(t)}{d_0})$
+    * *Display:* Added the estimated value to the "Simulation Results" text panel.
+
+## 3. Physical Verification: Energy Conservation
+To verify the accuracy of the numerical integration (Runge-Kutta), I added energy analysis tools.
+
+* **Backend Logic:** Added `calculate_energy()` method to compute:
+    * **Kinetic Energy ($K$):** Derived from angular velocities.
+    * **Potential Energy ($U$):** Derived from the height of the masses.
+    * **Total Energy ($E$):** $E = K + U$.
+* **New Graph (Row 2, Right):** **Energy vs. Time**.
+    * Plots $K$ (Blue Dashed), $U$ (Red Dashed), and Total $E$ (Solid Black).
+    * *Goal:* A perfectly flat Black line indicates perfect energy conservation. Drifting indicates numerical error.
+* **Result Panel:** Added the real-time value of Total Energy ($E$) to the text readout.
+
+## 4. Usability Fix: Smart View Management
+We addressed a bug where using the **Zoom/Lasso tool** would break the animation view when restarting or resetting.
+
+* **The Issue:** Matplotlib's zoom tool alters the axis limits. Simply restarting the animation loop does not reset these limits, causing the "Replay" to happen off-screen or with incorrect scaling.
+* **The Fix:** Implemented a `reset_graph_views()` function.
+    * **Functionality:** Explicitly calculates and sets the correct `xlim` and `ylim` for all 6 graphs based on the simulation parameters (lengths) and data ranges.
+    * **Triggers:** This function is called automatically when **Reset** or **Replay** is clicked, ensuring a clean view.
+    * **Preservation:** It is *not* called during Pause/Resume, allowing users to zoom in, pause, inspect, and resume without losing their zoomed view.    *

@@ -10,14 +10,22 @@ The double pendulum is a classic example of a physical system that exhibits **de
     $$y(t) = [\theta_1, \omega_1, \theta_2, \omega_2]$$
     Where $\theta$ is the angle and $\omega$ is the angular velocity.
 * **Numerical Integration (RK4):**
-    Because the coupled differential equations are non-linear and cannot be solved analytically, the program uses the **4th-Order Runge-Kutta (RK4)** method to numerically approximate the solution. This method estimates the slope at four points within a time step $dt$ to provide a highly accurate update:
+    The program uses the **4th-Order Runge-Kutta (RK4)** method to numerically approximate the solution. This method estimates the slope at four points within a time step $dt$ to provide a highly accurate update:
     $$y_{n+1} = y_n + \frac{dt}{6}(k_1 + 2k_2 + 2k_3 + k_4)$$
     This logic is encapsulated in `pendulum_model.py`.
+* **Lyapunov Exponent ($\lambda$):**
+    To quantify chaos, the dashboard estimates the Lyapunov exponent in real-time using the divergence rate between two trajectories:
+    $$\lambda \approx \frac{1}{t} \ln\left(\frac{|\delta Z(t)|}{|\delta Z_0|}\right)$$
+    A positive $\lambda$ indicates chaotic behavior.
+* **Energy Conservation ($E$):**
+    In an ideal frictionless system, the total mechanical energy $E$ must remain constant. The dashboard calculates this in real-time to verify the accuracy of the numerical simulation:
+    $$E(t) = K(t) + U(t)$$
 
 **Key Functions:**
 1.  **Real-Time Simulation:** Solves the equations of motion on-the-fly as users adjust parameters.
 2.  **Chaos Visualization:** Simulates two pendulums with a microscopic difference ($0.001$ rad) to visualize divergence.
-3.  **Phase Space Analysis:** Plots $\omega$ vs $\theta$ to analyze the system's dynamic stability (limit cycles vs. chaos).
+3.  **Phase Space Analysis:** Plots $\omega$ vs $\theta$ to analyze the system's dynamic stability.
+4.  **Energy Analysis:** Plots Kinetic, Potential, and Total Energy over time to visualize energy transfer and numerical drift.
 
 ## 2. Usage
 **Requirements:**
@@ -29,10 +37,12 @@ The double pendulum is a classic example of a physical system that exhibits **de
 2.  Run the main dashboard: `python gui_dashboard.py`
 
 **Interaction:**
-* **Control Panel:** Use the "Smart Sliders" on the left.
-    * **Click Arrows:** For precise increments (e.g., $\pm 0.001$ rad for angles).
-    * **Drag Slider:** For coarse adjustments.
-* **Simulation:** The plots update automatically. Use **"Replay"** to watch the animation again or **"Reset"** to restore default values.
+* **Control Panel:** Use the "Smart Sliders" on the left to adjust Mass, Length, Gravity, and Initial Conditions.
+* **Playback:**
+    * **Pause/Resume:** Freeze the simulation to analyze specific moments.
+    * **Replay:** Restart the animation from $t=0$ with current settings.
+    * **Reset:** Restore all parameters to default values.
+* **Zooming:** You can use the Matplotlib zoom/lasso tool on any graph. Pressing "Reset" or "Replay" will automatically reset the view to fit the data.
 
 ## 3. Program Structure
 The project follows a **Model-View-Controller (MVC)** pattern to separate physics from the interface.
@@ -43,28 +53,43 @@ The project follows a **Model-View-Controller (MVC)** pattern to separate physic
     * *Relation to Principles:* This file strictly handles the math described in Section 1.
 
 * **`main.py` (The View & Controller):**
-    * **SimulationManager Class:** Manages the state and calls the physics engine.
-    * **SmartSlider Class:** A custom UI widget combining Matplotlib sliders with buttons.
-    * **Layout Logic:** Handles the "Dashboard" arrangement (Plots, Graphs, and Controls).
+    * **SimulationManager Class:** Manages the state, runs the physics engine, and calculates separation, energy, and Lyapunov metrics.
+    * **SmartSlider Class:** A custom UI widget combining Matplotlib sliders with increment buttons.
+    * **Layout Logic:** Handles the 6-panel dashboard arrangement (Single Sim, Chaos Demo, Angle Plot, Energy Plot, Phase Space, Separation Plot).
 
-## 4. References
+## 4. Development Process (5%)
+**Process & Challenges:**
+1.  **Initial CLI Phase:** The project started as a command-line tool (`main.py`) where users had to manually input numbers.
+2.  **Debugging Physics:**
+    * *Issue:* The second pendulum's motion was physically incorrect.
+    * *Solution:* Found a copy-paste error in `pendulum_model.py` where `l1` was used instead of `l2` in the `num2` equation. Corrected the signs to match standard Lagrangian mechanics.
+3.  **Debugging Math:**
+    * *Issue:* Simulation inaccuracies.
+    * *Solution:* Identified an error in the RK4 implementation where `0.5 * dt` was used incorrectly in the final step. Corrected to standard RK4 form.
+4.  **UI Pivot:** Realized that text input was poor for exploring chaos. Decided to build a GUI Dashboard inspired by ideal gas simulators shown by professor.
+5.  **Layout Challenges:** The labels in Matplotlib overlapped with sliders. I resolved this by manually calculating coordinate offsets and creating a custom Layout Manager.
+
+## 5. References
 * **Physics Equations:** Derived from standard Classical Mechanics textbooks (Lagrangian dynamics of a double pendulum).
 * **AI Assistance (ChatGPT):**
     * Used for generating the initial skeleton code for the CLI version.
     * Consulted for debugging the `ZeroDivisionError` in the initial `main.py`.
     * Assisted in writing the `matplotlib.widgets` code for the GUI transition and designing the "Smart Slider" class.
 
-## 5. Modifications & Enhancements
+## 6. Modifications & Enhancements
 **From CLI to GUI Dashboard:**
-The initial program was a simple script that ran one simulation and showed one plot. I have significantly enhanced this to be a scientific exploration tool.
+The original reference was a simple script that ran one simulation. I have significantly enhanced this into a scientific exploration tool.
 
-**Specific Contributions:**
+**Self Contributions:**
 1.  **Smart Sliders (Custom Class):**
-    * *Problem:* Standard sliders are hard to set to exact values (e.g., exactly 0.000 velocity).
-    * *My Contribution:* I wrote a custom `SmartSlider` class that adds `<` and `>` buttons to every slider. This allows for precise, discrete increments (e.g., steps of 0.001 for angles), which is critical for testing sensitivity to initial conditions.
-2.  **Dashboard Architecture:**
-    * *Enhancement:* Instead of popup windows, I designed a single-window dashboard containing 4 simultaneous panels: Control, Trajectory, Chaos Comparison, and Data Analysis.
-3.  **Real-Time Metrics:**
-    * *Enhancement:* Added a "Separation vs. Time" graph that calculates the Euclidean distance between the two chaotic trajectories in real-time, providing a quantitative measure of the "Butterfly Effect" that wasn't present in the original code.
+    * I wrote a custom `SmartSlider` class that adds `<` and `>` buttons to every slider. This allows for precise, discrete increments (e.g., steps of 0.001 for angles), which is critical for testing sensitivity to initial conditions.
+2.  **Advanced Scientific Metrics:**
+    * **Separation vs. Time:** Quantifies the "Butterfly Effect" by plotting the distance between chaotic trajectories.
+    * **Lyapunov Exponent:** Implemented real-time estimation of the Lyapunov exponent to scientifically confirm chaotic behavior.
+    * **Energy Verification:** Added an **Energy vs. Time** graph plotting $K$, $U$, and Total Energy ($E$). This allows users to verify the conservation of energy and check the accuracy of the numerical method.
+3.  **Educational Tools:**
+    * Added a **Pause/Resume** feature to allow user to freeze the simulation for explanation.
+    * Added an **Angle vs. Time** graph to visualize periodicity.
+    * **Smart View Reset:** Implemented logic to automatically reset zoomed graph views only when necessary (Replay/Reset), improving the user experience.
 4.  **Merged Phase Space:**
-    * *Enhancement:* Combined the phase space of both pendulums into one graph for easier comparison of their dynamic states.
+    * Combined the phase space of both pendulums into one graph for easier comparison of their dynamic states.

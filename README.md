@@ -5,27 +5,15 @@
 The double pendulum is a classic example of a physical system that exhibits **deterministic chaos**. While governed by known laws of physics (Newtonian/Lagrangian mechanics), its motion is highly sensitive to initial conditions.
 
 **Physics & Mathematics:**
-* **Lagrangian Mechanics:** The equations of motion are derived using the Lagrangian $L = T - V$, where $T$ is kinetic energy and $V$ is potential energy.
-* **System State:** The system is described by four variables:
-    $$y(t) = [\theta_1, \omega_1, \theta_2, \omega_2]$$
-    Where $\theta$ is the angle and $\omega$ is the angular velocity.
-* **Numerical Integration (RK4):**
-    The program uses the **4th-Order Runge-Kutta (RK4)** method to numerically approximate the solution. This method estimates the slope at four points within a time step $dt$ to provide a highly accurate update:
-    $$y_{n+1} = y_n + \frac{dt}{6}(k_1 + 2k_2 + 2k_3 + k_4)$$
-    This logic is encapsulated in `pendulum_model.py`.
-* **Lyapunov Exponent ($\lambda$):**
-    To quantify chaos, the dashboard estimates the Lyapunov exponent in real-time using the divergence rate between two trajectories:
-    $$\lambda \approx \frac{1}{t} \ln\left(\frac{|\delta Z(t)|}{|\delta Z_0|}\right)$$
-    A positive $\lambda$ indicates chaotic behavior.
-* **Energy Conservation ($E$):**
-    In an ideal frictionless system, the total mechanical energy $E$ must remain constant. The dashboard calculates this in real-time to verify the accuracy of the numerical simulation:
-    $$E(t) = K(t) + U(t)$$
+* **Lagrangian Mechanics:** The equations of motion are derived using the Lagrangian $L = T - V$.
+* **Numerical Integration (RK4):** The program uses the **4th-Order Runge-Kutta** method to numerically approximate the solution, minimizing error drift over time.
+* **Rotational Inertia ($I$):** The simulator calculates the Moment of Inertia in real-time. It tracks the inertia of individual masses and the dynamic **System Inertia** ($I_{sys}$) relative to the pivot, which fluctuates as the pendulum changes shape.
+* **Energy Conservation:** Ideally, Total Energy $E = K + U$ remains constant. The dashboard tracks this to verify simulation accuracy.
 
 **Key Functions:**
-1.  **Real-Time Simulation:** Solves the equations of motion on-the-fly as users adjust parameters.
-2.  **Chaos Visualization:** Simulates two pendulums with a microscopic difference ($0.001$ rad) to visualize divergence.
-3.  **Phase Space Analysis:** Plots $\omega$ vs $\theta$ to analyze the system's dynamic stability.
-4.  **Energy Analysis:** Plots Kinetic, Potential, and Total Energy over time to visualize energy transfer and numerical drift.
+1.  **3D Interactive Simulation:** Visualizes the pendulum in a 3D space that users can rotate 360° to view motion from any angle.
+2.  **Chaos Visualization:** Simulates two double pendulums with a microscopic difference ($0.001$ rad) to visualize the "Butterfly Effect."
+3.  **Real-Time Physics Metrics:** Displays live calculations for Energy, Inertia, and Lyapunov Exponents.
 
 ## 2. Usage
 **Requirements:**
@@ -34,62 +22,41 @@ The double pendulum is a classic example of a physical system that exhibits **de
 
 **Execution:**
 1.  Install dependencies: `pip install matplotlib numpy`
-2.  Run the main dashboard: `python gui_dashboard.py`
+2.  Run the dashboard: `python main.py`
 
 **Interaction:**
-* **Control Panel:** Use the "Smart Sliders" on the left to adjust Mass, Length, Gravity, and Initial Conditions.
-* **Playback:**
-    * **Pause/Resume:** Freeze the simulation to analyze specific moments.
-    * **Replay:** Restart the animation from $t=0$ with current settings.
-    * **Reset:** Restore all parameters to default values.
-* **Zooming:** You can use the Matplotlib zoom/lasso tool on any graph. Pressing "Reset" or "Replay" will automatically reset the view to fit the data.
+* **Control Panel (Left):** Use "Smart Sliders" to adjust Mass, Length, Gravity, and Initial Conditions with 0.01 precision.
+* **3D Plots (Right):** Click and drag the "Single Trajectory" or "Chaos Demo" plots to rotate the view.
+* **Playback:** Use **Pause**, **Replay**, and **Reset** to control the simulation flow for teaching or analysis.
 
 ## 3. Program Structure
-The project follows a **Model-View-Controller (MVC)** pattern to separate physics from the interface.
+The project follows a **Model-View-Controller (MVC)** pattern.
 
 * **`pendulum_model.py` (The Model):**
-    * Contains the physics constants and differential equations (`derivatives` function).
-    * Implements the `rk4_step` and `simulate` functions for numerical integration.
-    * *Relation to Principles:* This file strictly handles the math described in Section 1.
-
+    * Contains the physics constants and differential equations.
+    * Implements the RK4 integration logic.
 * **`main.py` (The View & Controller):**
-    * **SimulationManager Class:** Manages the state, runs the physics engine, and calculates separation, energy, and Lyapunov metrics.
-    * **SmartSlider Class:** A custom UI widget combining Matplotlib sliders with increment buttons.
-    * **Layout Logic:** Handles the 6-panel dashboard arrangement (Single Sim, Chaos Demo, Angle Plot, Energy Plot, Phase Space, Separation Plot).
+    * **SimulationManager Class:** Manages state, physics calculations (Energy, Inertia), and threading.
+    * **Layout Logic:** Handles the split-screen design (Left Controls vs. Right 2x3 Plot Grid).
+    * **SmartSlider Class:** Custom widget combining sliders with precise increment buttons.
 
 ## 4. Development Process
 **Process & Challenges:**
-1.  **Initial CLI Phase:** The project started as a command-line tool (`main.py`) where users had to manually input numbers.
-2.  **Debugging Physics:**
-    * *Issue:* The second pendulum's motion was physically incorrect.
-    * *Solution:* Found a copy-paste error in `pendulum_model.py` where `l1` was used instead of `l2` in the `num2` equation. Corrected the signs to match standard Lagrangian mechanics.
-3.  **Debugging Math:**
-    * *Issue:* Simulation inaccuracies.
-    * *Solution:* Identified an error in the RK4 implementation where `0.5 * dt` was used incorrectly in the final step. Corrected to standard RK4 form.
-4.  **UI Pivot:** Realized that text input was poor for exploring chaos. Decided to build a GUI Dashboard inspired by ideal gas simulators shown by professor.
-5.  **Layout Challenges:** The labels in Matplotlib overlapped with sliders. I resolved this by manually calculating coordinate offsets and creating a custom Layout Manager.
+1.  **Transition from CLI to GUI:** Originally a command-line tool which is a limited usage of program that needed user to input all data manually, the project was then refactored into a real-time interactive dashboard to improve the interactions with user.
+2.  **Physics Verification:** Initially, the simulation showed energy drift. This was addressed by refining the time-step logic (`t = i * dt`) and adding an Energy vs. Time graph for visual verification.
+3.  **Layout Optimization:** Arranging 6 plots and detailed controls without overlapping was difficult. I solved this by implementing a strict grid layout and moving all controls to a dedicated left-hand column.
 
 ## 5. References
-* **Physics Equations:** Derived from standard Classical Mechanics textbooks (Lagrangian dynamics of a double pendulum).
-* **AI Assistance (ChatGPT、Gemini、Antigravity):**
-    * Used for generating the initial pseudocode and skeleton code for the CLI version.(GPT)
-    * Consulted for debugging the `ZeroDivisionError` in the initial `main.py`.(Antigravity)
-    * Assisted in writing the `matplotlib.widgets` code for the GUI transition and designing the "Smart Slider" class.(Gemini)
+* **Physics Equations:** Standard Lagrangian dynamics of a double pendulum.
+* **AI Assistance:** Used for debugging `matplotlib` layout issues and generating the boilerplate for the `Axes3D` integration. (Google Gemini, Google Antigravity)
 
 ## 6. Modifications & Enhancements
-**From CLI to GUI Dashboard:**
-The original reference was a simple script that ran one simulation. I have significantly enhanced this into a scientific exploration tool.
-
 **Self Contributions:**
-1.  **Smart Sliders (Custom Class):**
-    * I wrote a custom `SmartSlider` class that adds `<` and `>` buttons to every slider. This allows for precise, discrete increments (e.g., steps of 0.001 for angles), which is critical for testing sensitivity to initial conditions.
-2.  **Advanced Scientific Metrics:**
-    * **Separation vs. Time:** Quantifies the "Butterfly Effect" by plotting the distance between chaotic trajectories.
-    * **Lyapunov Exponent:** Implemented real-time estimation of the Lyapunov exponent to scientifically confirm chaotic behavior.
-    * **Energy Verification:** Added an **Energy vs. Time** graph plotting $K$, $U$, and Total Energy ($E$). This allows users to verify the conservation of energy and check the accuracy of the numerical method.
-3.  **Educational Tools:**
-    * Added a **Pause/Resume** feature to allow user to freeze the simulation for explanation.
-    * Added an **Angle vs. Time** graph to visualize periodicity.
-    * **Smart View Reset:** Implemented logic to automatically reset zoomed graph views only when necessary (Replay/Reset), improving the user experience.
-4.  **Merged Phase Space:**
-    * Combined the phase space of both pendulums into one graph for easier comparison of their dynamic states.
+1.  **3D Visualization:**
+    * Upgraded the standard 2D plots to **interactive 3D axes**, allowing users to rotate the view and understand the spatial context of the motion.
+2.  **Advanced Physics Metrics:**
+    * **Inertia:** Added real-time calculation of $I_1$, $I_2$, and the complex $I_{sys}$ (System Inertia).
+    * **Lyapunov & Separation:** Quantified chaos by plotting the divergence distance and estimating the Lyapunov exponent.
+3.  **Smart UI Design:**
+    * Designed a custom **"Smart Slider"** that includes `<` and `>` buttons for precise 0.01 adjustments, solving the difficulty of setting exact initial conditions on standard sliders.
+    * Created a **2x3 Grid Dashboard** that displays Trajectory, Angles, Energy, Phase Space, and Separation simultaneously.

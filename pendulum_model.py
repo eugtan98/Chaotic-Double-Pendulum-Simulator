@@ -59,7 +59,7 @@ def rk4_step(state, dt, params):
     return new_state
 
 def simulate(initial_state, t_max, dt, params):
-    n_steps = int(t_max / dt) + 1
+    n_steps = int(round(t_max / dt)) + 1
 
     t_array = []
     theta1_array = []
@@ -67,11 +67,11 @@ def simulate(initial_state, t_max, dt, params):
     theta2_array = []
     omega2_array = []
 
-    #Initial conditions
-    t = 0.0
     state = list(initial_state) # make copy
 
-    for _ in range (n_steps):
+    for i in range (n_steps):
+        t = i * dt 
+        
         t_array.append(t)
         theta1_array.append(state[0])
         omega1_array.append(state[1])
@@ -79,5 +79,5 @@ def simulate(initial_state, t_max, dt, params):
         omega2_array.append(state[3])
 
         state = rk4_step(state, dt, params)
-        t+=dt
+        
     return t_array, theta1_array, omega1_array, theta2_array, omega2_array

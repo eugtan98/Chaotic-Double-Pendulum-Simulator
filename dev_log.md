@@ -195,3 +195,41 @@ We addressed a bug where using the **Zoom/Lasso tool** would break the animation
     * **Functionality:** Explicitly calculates and sets the correct `xlim` and `ylim` for all 6 graphs based on the simulation parameters (lengths) and data ranges.
     * **Triggers:** This function is called automatically when **Reset** or **Replay** is clicked, ensuring a clean view.
     * **Preservation:** It is *not* called during Pause/Resume, allowing users to zoom in, pause, inspect, and resume without losing their zoomed view.    *
+
+# Development Log: Visualization Overhaul & Physical Depth (2025/12/13)
+
+## 1. 3D Visualization Upgrade
+To improve the user's intuitive understanding of the motion, I transitioned the main trajectory plots from 2D to 3D.
+
+* **Implementation:** Replaced standard Matplotlib axes with `mpl_toolkits.mplot3d.Axes3D`.
+* **Coordinate Mapping:**
+    * Physics $x$ $\rightarrow$ 3D Plot $x$
+    * Physics $y$ $\rightarrow$ 3D Plot $z$ (Vertical)
+    * 3D Plot $y$ (Depth) set to 0.
+* **Benefit:** This creates a "hanging" effect in 3D space. Crucially, users can now **click and drag** to rotate the camera 360°, allowing them to view the pendulum's motion from any angle.
+
+## 2. Advanced Physics: Rotational Inertia
+I added calculations for **Moment of Inertia** to deepen the scientific value of the tool regarding angular momentum.
+
+* **Calculations Added:**
+    * **Inertia 1 ($I_1$):** Constant inertia of Mass 1 relative to the pivot ($m_1 l_1^2$).
+    * **Inertia 2 ($I_2$):** Constant inertia of Mass 2 relative to the joint ($m_2 l_2^2$).
+    * **System Inertia ($I_{sys}$):** The dynamic, effective inertia of the entire system relative to the main pivot, which changes as the pendulum changes shape:
+        $$I_{sys} = m_1 l_1^2 + m_2 (l_1^2 + l_2^2 + 2 l_1 l_2 \cos(\theta_1 - \theta_2))$$
+* **Display:** Added these real-time values to the Simulation Results panel.
+
+## 3. UI/UX Refinements & Layout Overhaul
+I completely redesigned the dashboard layout to match a specific reference design for better usability.
+
+* **Split-Screen Layout:**
+    * **Left Column:** Dedicated exclusively to Controls (Sliders, Buttons) and Numerical Results.
+    * **Right Area:** A clean 2x3 grid of plots.
+* **Precision Controls:**
+    * Standardized all sliders to **2 decimal places**.
+    * Set all increment steps (arrow buttons) to **0.01** for uniform precision.
+* **Visual Polish:**
+    * Aligned labels to prevent overlapping.
+    * Optimized the "Results" text box to display complex data (Inertia, Energy, Lyapunov, Chaos) in a readable, tabular format.
+
+## 4. Bug Fixes
+* **Floating Point Time Error:** Fixed an issue where the simulation stopped at 19.95s instead of 20.00s due to floating point division. Implemented `round()` and index-based time calculation (`t = i * dt`) for perfect precision.

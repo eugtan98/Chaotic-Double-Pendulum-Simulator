@@ -2,7 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
 from matplotlib.animation import FuncAnimation
-import pendulum_model  # Uses your existing physics engine
+from mpl_toolkits.mplot3d import Axes3D
+# import matplotlib.patches as patches # No longer needed
+import pendulum_model
 
 # --- 1. Simulation Manager ---
 class SimulationManager:
@@ -97,104 +99,106 @@ class SimulationManager:
 sim = SimulationManager()
 
 # --- 2. Dashboard Layout ---
-fig = plt.figure(figsize=(16, 10))
+fig = plt.figure(figsize=(18, 10))
 
-# --- RIGHT SIDE: PLOTS ---
-ax_main = plt.axes([0.38, 0.70, 0.27, 0.25]) 
-ax_main.set_title("1. Single Trajectory")
+# === LEFT COLUMN: Controls & Results (Shifted Left) ===
+fig.text(0.02, 0.96, "CONTROL PANEL", fontsize=16, fontweight='bold')
+fig.text(0.02, 0.93, "Parameters:", fontsize=11, fontweight='bold')
+
+# === RIGHT SIDE: PLOTS (2x3 Grid) ===
+# Row 1: 3D Visuals
+ax_main = plt.axes([0.36, 0.68, 0.28, 0.28], projection='3d') 
+ax_main.set_title("Single Trajectory")
 ax_main.set_xlabel("x (m)") 
-ax_main.set_ylabel("y (m)") 
-ax_main.set_aspect('equal')
-ax_main.grid(True)
+ax_main.set_ylabel("z (m)") 
+ax_main.set_zlabel("y (m)") 
 
-ax_chaos = plt.axes([0.70, 0.70, 0.27, 0.25])
-ax_chaos.set_title(f"2. Chaos Demo (Diff: {sim.perturbation} rad)")
+ax_chaos = plt.axes([0.69, 0.68, 0.28, 0.28], projection='3d')
+ax_chaos.set_title(f"Chaos Demo (Diff: {sim.perturbation} rad)")
 ax_chaos.set_xlabel("x (m)") 
-ax_chaos.set_ylabel("y (m)") 
-ax_chaos.set_aspect('equal')
-ax_chaos.grid(True)
+ax_chaos.set_ylabel("z (m)") 
+ax_chaos.set_zlabel("y (m)") 
 
-ax_angle = plt.axes([0.38, 0.38, 0.27, 0.22])
-ax_angle.set_title("3. Angles vs Time")
+# Row 2: Time Series
+ax_angle = plt.axes([0.36, 0.38, 0.28, 0.20])
+ax_angle.set_title("Angles - Time")
 ax_angle.set_xlabel("Time (s)")
 ax_angle.set_ylabel("Angle (rad)")
 ax_angle.grid(True)
 
-ax_energy = plt.axes([0.70, 0.38, 0.27, 0.22])
-ax_energy.set_title("4. Energy vs Time")
+ax_energy = plt.axes([0.69, 0.38, 0.28, 0.20])
+ax_energy.set_title("Energy - Time")
 ax_energy.set_xlabel("Time (s)")
 ax_energy.set_ylabel("Energy (J)")
 ax_energy.grid(True)
 
-ax_phase = plt.axes([0.38, 0.06, 0.27, 0.22])
-ax_phase.set_title("5. Phase Space")
+# Row 3: Analysis
+ax_phase = plt.axes([0.36, 0.08, 0.28, 0.20])
+ax_phase.set_title("Phase Space")
 ax_phase.set_xlabel("Angle (rad)")
 ax_phase.set_ylabel("Velocity (rad/s)")
 ax_phase.grid(True)
 
-ax_sep = plt.axes([0.70, 0.06, 0.27, 0.22])
-ax_sep.set_title("6. Separation vs Time")
+ax_sep = plt.axes([0.69, 0.08, 0.28, 0.20])
+ax_sep.set_title("Separation - Time")
 ax_sep.set_xlabel("Time (s)")
 ax_sep.set_ylabel("Distance (m)")
 ax_sep.grid(True)
 
-# --- LEFT SIDE: RESULTS & CONTROLS ---
-stats_text = fig.text(0.05, 0.30, '', va='top', ha='left', fontsize=10, 
-                      fontfamily='monospace', bbox=dict(facecolor='white', alpha=0.5))
-fig.text(0.05, 0.32, "--- SIMULATION RESULTS ---", fontsize=12, fontweight='bold')
-
-# -- Visual Elements --
-line_main, = ax_main.plot([], [], 'o-', lw=3, color='black')
-
-line_chaos_a, = ax_chaos.plot([], [], 'o-', lw=2, color='blue', alpha=0.6, label='A')
-line_chaos_b, = ax_chaos.plot([], [], 'o-', lw=2, color='red', alpha=0.6, label='B')
+# === VISUAL ELEMENTS ===
+line_main, = ax_main.plot([0], [0], [0], 'o-', lw=3, color='black')
+line_chaos_a, = ax_chaos.plot([0], [0], [0], 'o-', lw=2, color='blue', alpha=0.6, label='A')
+line_chaos_b, = ax_chaos.plot([0], [0], [0], 'o-', lw=2, color='red', alpha=0.6, label='B')
 ax_chaos.legend(loc='upper right', fontsize='x-small')
-
 line_angle1, = ax_angle.plot([], [], '-', lw=2, color='green', label='Theta 1')
 line_angle2, = ax_angle.plot([], [], '-', lw=2, color='purple', label='Theta 2')
 ax_angle.legend(loc='upper right', fontsize='x-small')
-
 line_E, = ax_energy.plot([], [], '-', lw=2, color='black', label='Total (E)')
 line_K, = ax_energy.plot([], [], '--', lw=1, color='blue', label='Kinetic (K)')
 line_U, = ax_energy.plot([], [], '--', lw=1, color='red', label='Potential (U)')
 ax_energy.legend(loc='upper right', fontsize='x-small')
-
 point_phase1, = ax_phase.plot([], [], 'o', color='green', label='P1')
 point_phase2, = ax_phase.plot([], [], 'o', color='purple', label='P2')
 ax_phase.legend(loc='upper right', fontsize='x-small')
-
 line_sep, = ax_sep.plot([], [], '-', lw=2, color='orange')
 
-# --- 3. Control Panel ---
-fig.text(0.05, 0.96, "CONTROL PANEL", fontsize=14, fontweight='bold')
-fig.text(0.05, 0.93, "Parameters:", fontsize=10, fontweight='bold')
+
+# --- 3. Control Panel Implementation (Standard Slider) ---
 
 class SmartSlider:
     def __init__(self, fig, label, y_pos, vmin, vmax, valinit, step_val):
         self.step_val = step_val
         self.valinit = valinit
         
-        ax_dec = plt.axes([0.10, y_pos, 0.015, 0.025]) 
+        # Decrease Button (<)
+        ax_dec = plt.axes([0.07, y_pos, 0.015, 0.025]) 
         self.b_dec = Button(ax_dec, '<', color='lightgray', hovercolor='0.9')
         self.b_dec.on_clicked(self.decrement)
         
-        ax_slide = plt.axes([0.12, y_pos, 0.10, 0.025], facecolor='lightgoldenrodyellow')
-        self.slider = Slider(ax_slide, "", vmin, vmax, valinit=valinit)
+        # Slider (Middle) - Using default style
+        ax_slide = plt.axes([0.09, y_pos, 0.10, 0.025])
+        self.slider = Slider(ax_slide, "", vmin, vmax, valinit=valinit) 
         self.slider.valtext.set_visible(False)
         
-        fig.text(0.095, y_pos + 0.005, label, ha='right', va='center', fontsize=9)
+        # No custom handle code here anymore.
+
+        # Label (Left of button)
+        fig.text(0.06, y_pos + 0.005, label, ha='right', va='center', fontsize=10)
         
-        ax_inc = plt.axes([0.225, y_pos, 0.015, 0.025]) 
+        # Increase Button (>)
+        ax_inc = plt.axes([0.20, y_pos, 0.015, 0.025]) 
         self.b_inc = Button(ax_inc, '>', color='lightgray', hovercolor='0.9')
         self.b_inc.on_clicked(self.increment)
         
-        self.val_text = fig.text(0.25, y_pos + 0.005, f"{valinit:.3f}", 
-                                 ha='left', va='center', fontsize=9, color='blue')
+        # Value Text (Right of button)
+        self.val_text = fig.text(0.22, y_pos + 0.005, f"{valinit:.2f}", 
+                                 ha='left', va='center', fontsize=10, color='blue', fontweight='bold')
 
+        # Connect updates
         self.slider.on_changed(self.update_text)
         
     def update_text(self, val):
-        self.val_text.set_text(f"{val:.3f}")
+        self.val_text.set_text(f"{val:.2f}")
 
     def increment(self, event):
         new_val = self.slider.val + self.step_val
@@ -216,43 +220,60 @@ class SmartSlider:
     def val(self):
         return self.slider.val
 
-# Create Smart Sliders
-s_time = SmartSlider(fig, 'Time (s)',      0.90, 5.0, 40.0, sim.t_max, 0.001)
-s_g    = SmartSlider(fig, 'Gravity',       0.87, 1.0, 20.0, sim.params['g'], 0.1)
-s_m1   = SmartSlider(fig, 'Mass 1',        0.84, 0.1, 5.0,  sim.params['m1'], 0.1)
-s_m2   = SmartSlider(fig, 'Mass 2',        0.81, 0.1, 5.0,  sim.params['m2'], 0.1)
-s_l1   = SmartSlider(fig, 'Len 1',         0.78, 0.5, 3.0,  sim.params['l1'], 0.1)
-s_l2   = SmartSlider(fig, 'Len 2',         0.75, 0.5, 3.0,  sim.params['l2'], 0.1)
+# Create Sliders
+y_start = 0.90
+y_step = 0.035
+s_time = SmartSlider(fig, 'Time (s)',      y_start, 5.0, 40.0, sim.t_max, 0.01)
+s_g    = SmartSlider(fig, 'Gravity',       y_start - 1*y_step, 1.0, 20.0, sim.params['g'], 0.01)
+s_m1   = SmartSlider(fig, 'Mass 1',        y_start - 2*y_step, 0.1, 5.0,  sim.params['m1'], 0.01)
+s_m2   = SmartSlider(fig, 'Mass 2',        y_start - 3*y_step, 0.1, 5.0,  sim.params['m2'], 0.01)
+s_l1   = SmartSlider(fig, 'Len 1',         y_start - 4*y_step, 0.5, 3.0,  sim.params['l1'], 0.01)
+s_l2   = SmartSlider(fig, 'Len 2',         y_start - 5*y_step, 0.5, 3.0,  sim.params['l2'], 0.01)
 
-# Initial Conditions
-fig.text(0.05, 0.72, "Initial Conditions:", fontsize=10, fontweight='bold')
-s_th1  = SmartSlider(fig, 'Theta 1',       0.69, -np.pi, np.pi, sim.initial_state[0], 0.001)
-s_th2  = SmartSlider(fig, 'Theta 2',       0.66, -np.pi, np.pi, sim.initial_state[2], 0.001)
-s_om1  = SmartSlider(fig, 'Omega 1',       0.63, -10.0, 10.0,   sim.initial_state[1], 0.01)
-s_om2  = SmartSlider(fig, 'Omega 2',       0.60, -10.0, 10.0,   sim.initial_state[3], 0.01)
+# Initial Conditions Group
+y_ic_start = y_start - 7*y_step
+# Moved text up slightly to fix overlap
+fig.text(0.02, y_ic_start + 0.035, "Initial Conditions:", fontsize=11, fontweight='bold')
 
-# Buttons
-ax_replay = plt.axes([0.05, 0.50, 0.09, 0.05])
-b_replay = Button(ax_replay, 'Replay', hovercolor='0.975')
+s_th1  = SmartSlider(fig, 'Theta 1',       y_ic_start, -np.pi, np.pi, sim.initial_state[0], 0.01)
+s_th2  = SmartSlider(fig, 'Theta 2',       y_ic_start - 1*y_step, -np.pi, np.pi, sim.initial_state[2], 0.01)
+s_om1  = SmartSlider(fig, 'Omega 1',       y_ic_start - 2*y_step, -10.0, 10.0,   sim.initial_state[1], 0.01)
+s_om2  = SmartSlider(fig, 'Omega 2',       y_ic_start - 3*y_step, -10.0, 10.0,   sim.initial_state[3], 0.01)
 
-ax_reset = plt.axes([0.15, 0.50, 0.09, 0.05])
-b_reset = Button(ax_reset, 'Reset', hovercolor='0.975', color='mistyrose')
+# Buttons (Shifted Left)
+btn_y = y_ic_start - 5*y_step
+ax_replay = plt.axes([0.02, btn_y, 0.09, 0.04])
+b_replay = Button(ax_replay, 'Replay', hovercolor='0.9')
+ax_reset = plt.axes([0.12, btn_y, 0.09, 0.04])
+b_reset = Button(ax_reset, 'Reset', hovercolor='0.9', color='mistyrose')
+ax_pause = plt.axes([0.22, btn_y, 0.09, 0.04])
+b_pause = Button(ax_pause, 'Pause', hovercolor='0.9', color='lightcyan')
 
-ax_pause = plt.axes([0.25, 0.50, 0.09, 0.05])
-b_pause = Button(ax_pause, 'Pause', hovercolor='0.975', color='lightcyan')
+
+# === RESULTS PANEL (Shifted Left) ===
+results_y_top = btn_y - 0.05
+fig.text(0.02, results_y_top, "--- SIMULATION RESULTS ---", fontsize=12, fontweight='bold', ha='left')
+
+# Main Stats Text
+stats_text = fig.text(0.02, results_y_top - 0.03, '', 
+                      va='top', ha='left', fontsize=10, 
+                      fontfamily='monospace', 
+                      bbox=dict(boxstyle='round', facecolor='white', alpha=0.9, edgecolor='gray'))
+
 
 # --- 4. Update Logic & View Reset ---
 smart_sliders = [s_time, s_g, s_m1, s_m2, s_l1, s_l2, s_th1, s_th2, s_om1, s_om2]
 
 def reset_graph_views():
     """Forces all axes to reset limits based on current data."""
-    # 1. Spatial Limits
+    # 1. Spatial Limits (3D)
     limit = sim.params['l1'] + sim.params['l2'] + 0.2
     for ax in [ax_main, ax_chaos]:
         ax.set_xlim(-limit, limit)
-        ax.set_ylim(-limit, limit)
+        ax.set_ylim(-limit, limit) 
+        ax.set_zlim(-limit, limit) 
+        ax.set_box_aspect((1, 1, 1)) 
     
-    # Pre-fetch data to check range
     all_theta = np.concatenate([sim.sol_a['theta1'], sim.sol_a['theta2']])
     all_omega = np.concatenate([sim.sol_a['omega1'], sim.sol_a['omega2']])
     
@@ -264,7 +285,6 @@ def reset_graph_views():
     # 3. Energy vs Time
     ax_energy.set_xlim(0, sim.t_max)
     if len(sim.sol_a['E']) > 0:
-        # Check all energy components to set Y scale
         vals = np.concatenate([sim.sol_a['K'], sim.sol_a['U'], sim.sol_a['E']])
         ax_energy.set_ylim(np.min(vals) - 5, np.max(vals) + 5)
 
@@ -279,7 +299,6 @@ def reset_graph_views():
         ax_sep.set_ylim(0, np.max(sim.separation) * 1.1)
 
 def update_sim(val=None):
-    # Update all parameters
     sim.t_max = s_time.val
     sim.params['m1'] = s_m1.val
     sim.params['m2'] = s_m2.val
@@ -288,13 +307,9 @@ def update_sim(val=None):
     sim.params['g']  = s_g.val
     sim.initial_state = [s_th1.val, s_om1.val, s_th2.val, s_om2.val]
     
-    # Re-run simulation
     sim.run_sim()
-    
-    # Reset Views
     reset_graph_views()
 
-    # Ensure unpaused
     sim.is_paused = False
     b_pause.label.set_text("Pause")
 
@@ -303,7 +318,7 @@ def replay(event):
     sim.is_running = True
     sim.is_paused = False
     b_pause.label.set_text("Pause")
-    reset_graph_views() # <--- FORCE RESET ZOOM
+    reset_graph_views() 
 
 def reset_all(event):
     for s in smart_sliders:
@@ -315,9 +330,8 @@ def toggle_pause(event):
     if sim.is_paused:
         b_pause.label.set_text("Resume")
     else:
-        # Resuming logic
         b_pause.label.set_text("Pause")
-        reset_graph_views() # <--- FORCE RESET ZOOM ON RESUME
+        reset_graph_views()
 
 for s in smart_sliders:
     s.on_changed(update_sim)
@@ -343,16 +357,21 @@ def animate(frame):
         sim.is_running = False 
         i = len(sim.sol_a['x1']) - 1 
     
-    # 1. Main Sim
+    # 1. Main Sim (3D UPDATE)
     x1, y1 = sim.sol_a['x1'][i], sim.sol_a['y1'][i]
     x2, y2 = sim.sol_a['x2'][i], sim.sol_a['y2'][i]
-    line_main.set_data([0, x1, x2], [0, y1, y2])
     
-    # 2. Chaos Sim
-    line_chaos_a.set_data([0, x1, x2], [0, y1, y2])
+    line_main.set_data([0, x1, x2], [0, 0, 0]) 
+    line_main.set_3d_properties([0, y1, y2])
+    
+    # 2. Chaos Sim (3D UPDATE)
+    line_chaos_a.set_data([0, x1, x2], [0, 0, 0])
+    line_chaos_a.set_3d_properties([0, y1, y2])
+    
     xb1, yb1 = sim.sol_b['x1'][i], sim.sol_b['y1'][i]
     xb2, yb2 = sim.sol_b['x2'][i], sim.sol_b['y2'][i]
-    line_chaos_b.set_data([0, xb1, xb2], [0, yb1, yb2])
+    line_chaos_b.set_data([0, xb1, xb2], [0, 0, 0])
+    line_chaos_b.set_3d_properties([0, yb1, yb2])
     
     # 3. Angle vs Time
     line_angle1.set_data(sim.sol_a['t'][:i+1], sim.sol_a['theta1'][:i+1])
@@ -370,29 +389,48 @@ def animate(frame):
     # 6. Separation
     line_sep.set_data(sim.sol_a['t'][:i+1], sim.separation[:i+1])
     
-    # Results & Lyapunov & Energy
+    # Results & INERTIA CALCULATION
     diff_pos = sim.separation[i]
     t_curr = sim.sol_a['t'][i]
+    current_E = sim.sol_a['E'][i]
+    
+    # Parameters for Inertia
+    m1, m2 = sim.params['m1'], sim.params['m2']
+    l1, l2 = sim.params['l1'], sim.params['l2']
+    th1 = sim.sol_a['theta1'][i]
+    th2 = sim.sol_a['theta2'][i]
+    
+    # 1. Inertia 1 (About Pivot)
+    I1 = m1 * (l1**2)
+    # 2. Inertia 2 (About Joint)
+    I2 = m2 * (l2**2)
+    # 3. Total System Inertia (About Pivot) - Dynamic
+    dist_sq = l1**2 + l2**2 + 2*l1*l2*np.cos(th1 - th2)
+    I_sys = m1 * (l1**2) + m2 * dist_sq
     
     # Lyapunov Estimate
     lyap_est = 0.0
     if t_curr > 0.1 and sim.separation[0] > 0:
         lyap_est = (1.0 / t_curr) * np.log(diff_pos / sim.separation[0])
-        
-    # Current Energy
-    current_E = sim.sol_a['E'][i]
-    
+
+    # Formatting Results Text
     results_str = (
-        f"Time:       {t_curr:.2f} / {sim.t_max:.1f} s\n\n"
-        f"Theta 1:    {sim.sol_a['theta1'][i]:.2f} rad\n"
-        f"Omega 1:    {sim.sol_a['omega1'][i]:.2f} rad/s\n\n"
-        f"Theta 2:    {sim.sol_a['theta2'][i]:.2f} rad\n"
-        f"Omega 2:    {sim.sol_a['omega2'][i]:.2f} rad/s\n\n"
-        f"Chaos Sep:  {diff_pos:.4f} m\n"
-        f"Est. Lyap:  {lyap_est:.3f}\n\n"
-        f"Energy E(t):{current_E:.2f} J\n"
+        f"Time:      {t_curr:.2f} / {sim.t_max:.1f} s\n"
+        f"---------------------------\n"
+        f"State:     Pendulum 1   Pendulum 2\n"
+        f"Theta:    {sim.sol_a['theta1'][i]:7.2f} rad {sim.sol_a['theta2'][i]:7.2f} rad\n"
+        f"Omega:    {sim.sol_a['omega1'][i]:7.2f} r/s {sim.sol_a['omega2'][i]:7.2f} r/s\n"
+        f"Inertia:  {I1:7.2f} kgm²{I2:7.2f} kgm²\n"
+        f"---------------------------\n"
+        f"Sys Inertia (I_sys): {I_sys:.2f} kg·m²\n"
+        f"---------------------------\n"
+        f"Chaos Separation:    {diff_pos:.4f} m\n"
+        f"Lyapunov Est:        {lyap_est:.3f}\n"
+        f"---------------------------\n"
+        f"Mech. Energy (E):    {current_E:.2f} J\n"
         f"(E = K + U)"
     )
+    
     if not sim.is_running:
         results_str += "\n[FINISHED]"
     elif sim.is_paused:
